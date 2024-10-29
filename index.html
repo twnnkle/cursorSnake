@@ -75,6 +75,35 @@
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            
+            canvas {
+                width: 100% !important;
+                height: auto !important;
+                touch-action: none;
+            }
+            
+            .title {
+                font-size: 32px;
+                margin: 10px 0;
+            }
+            
+            .score {
+                font-size: 24px;
+                margin: 10px 0;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -83,7 +112,7 @@
         <div class="score">Счёт: <span id="score">0</span></div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <div class="controls">
-            Используйте стрелки для управления змейкой
+            Используйте стрелки или свайпы для управления змейкой
         </div>
     </div>
     <div id="gameOverScreen" class="game-over">

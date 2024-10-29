@@ -4,8 +4,8 @@ const scoreElement = document.getElementById('score');
 const finalScoreElement = document.getElementById('finalScore');
 const gameOverScreen = document.getElementById('gameOverScreen');
 
-const gridSize = 20;
-const tileCount = canvas.width / gridSize;
+let gridSize = 20;
+let tileCount = 20;
 
 // Добавляем градиент для змейки
 const snakeGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -25,6 +25,101 @@ let score = 0;
 
 // Добавляем эффект частиц
 let particles = [];
+
+// В начало файла добавляем переменные для отслеживания свайпов
+let touchStartX = null;
+let touchStartY = null;
+
+// Добавляем обработчики для сенсорного управления
+canvas.addEventListener('touchstart', handleTouchStart, false);
+canvas.addEventListener('touchmove', handleTouchMove, false);
+
+function handleTouchStart(event) {
+    event.preventDefault();
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+}
+
+function handleTouchMove(event) {
+    if (!touchStartX || !touchStartY) {
+        return;
+    }
+
+    event.preventDefault();
+    
+    let touchEndX = event.touches[0].clientX;
+    let touchEndY = event.touches[0].clientY;
+
+    let deltaX = touchEndX - touchStartX;
+    let deltaY = touchEndY - touchStartY;
+
+    // Минимальное расстояние для определения свайпа
+    const minSwipeDistance = 30;
+
+    if (Math.abs(deltaX) > minSwipeDistance || Math.abs(deltaY) > minSwipeDistance) {
+        // Определяем основное направление свайпа
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Горизонтальный свайп
+            if (deltaX > 0 && dx !== -1) { // Свайп вправо
+                dx = 1;
+                dy = 0;
+            } else if (deltaX < 0 && dx !== 1) { // Свайп влево
+                dx = -1;
+                dy = 0;
+            }
+        } else {
+            // Вертикальный свайп
+            if (deltaY > 0 && dy !== -1) { // Свайп вниз
+                dx = 0;
+                dy = 1;
+            } else if (deltaY < 0 && dy !== 1) { // Свайп вверх
+                dx = 0;
+                dy = -1;
+            }
+        }
+        
+        // Сбрасываем начальные координаты
+        touchStartX = null;
+        touchStartY = null;
+    }
+}
+
+// Добавляем мета-тег для мобильных устройств в HTML
+document.head.insertAdjacentHTML('beforeend', 
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">'
+);
+
+// Функция для адаптации размера canvas под мобильные устройства
+function resizeCanvas() {
+    if (window.innerWidth <= 768) {
+        canvas.width = 300;
+        canvas.height = 300;
+    } else {
+        canvas.width = 400;
+        canvas.height = 400;
+    }
+    
+    // Пересчитываем размер сетки, сохраняя количество клеток
+    gridSize = canvas.width / tileCount;
+    
+    // Обновляем градиент
+    snakeGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    snakeGradient.addColorStop(0, '#00ff00');
+    snakeGradient.addColorStop(1, '#008800');
+    
+    // Проверяем, не вышла ли еда или змейка за пределы поля
+    if (food.x >= tileCount) food.x = tileCount - 1;
+    if (food.y >= tileCount) food.y = tileCount - 1;
+    
+    snake = snake.map(segment => ({
+        x: Math.min(segment.x, tileCount - 1),
+        y: Math.min(segment.y, tileCount - 1)
+    }));
+}
+
+// Вызываем функцию при загрузке и изменении размера окна
+window.addEventListener('load', resizeCanvas);
+window.addEventListener('resize', resizeCanvas);
 
 document.addEventListener('keydown', changeDirection);
 
@@ -174,8 +269,8 @@ function showGameOver() {
 }
 
 function generateFood() {
-    food.x = Math.floor(Math.random() * tileCount);
-    food.y = Math.floor(Math.random() * tileCount);
+    food.x = Math.floor(Math.random() * (tileCount - 1));
+    food.y = Math.floor(Math.random() * (tileCount - 1));
 }
 
 function gameOver() {
